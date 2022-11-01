@@ -127,7 +127,7 @@ func servePublish(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("Message recieved", p)
 	// broadcast the message only if clients are present
-	if p.Message != "" {
+	if p.Message != "" && len(hub.clients) > 0 {
 		hub.broadcast <- []byte(p.Message)
 	}
 }
