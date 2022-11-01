@@ -33,16 +33,12 @@ func (h *Hub) run() {
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
+				// close the writer, this will terminate the go routine of writer for the closed client
 				close(client.send)
 			}
 		case message := <-h.broadcast:
 			for client := range h.clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
-				}
+				client.send <- message
 			}
 		}
 	}

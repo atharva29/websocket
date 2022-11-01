@@ -115,13 +115,12 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
 	client.hub.register <- client
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
+	// Start a new reader go routine and writer go routine for the client
 	go client.writePump()
 	go client.readPump()
 }
 
-// servePublish binds data to struct and publishes to channel
+// servePublish reads data and publishes to broadcasting channel
 func servePublish(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	var p Payload
 	err := json.NewDecoder(r.Body).Decode(&p)
