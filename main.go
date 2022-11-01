@@ -12,10 +12,10 @@ func main() {
 	flag.Parse()
 	hub := newHub()
 	go hub.run()
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/publish", func(w http.ResponseWriter, r *http.Request) {
 		servePublish(hub, w, r)
 	})
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/subscribe", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
 	err := http.ListenAndServe(*addr, nil)

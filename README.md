@@ -11,5 +11,5 @@ curl --location --request POST 'http://localhost:8080/publish' \
 }'
 ```
 ---
-2. `/ws` : websocket endpoint: Messages incoming from above `publish` api will be broadcasted to every websocket client.
+2. `/subscribe` : websocket endpoint: Messages incoming from above `publish` api will be broadcasted to every websocket client.
 ---
