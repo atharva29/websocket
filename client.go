@@ -49,9 +49,9 @@ type Payload struct {
 	Message string
 }
 
-// readPump reads messages from the clients and send events to hub on client's connection closing
+// read reads messages from the clients and send events to hub on client's connection closing
 // for every client writePump go routine is made
-func (c *Client) readPump() {
+func (c *Client) read() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
@@ -70,9 +70,9 @@ func (c *Client) readPump() {
 	}
 }
 
-// writePump pumps messages from the hub to the websocket connection.
-// for every client writePump go routine is made
-func (c *Client) writePump() {
+// write pumps messages from the hub to the websocket connection.
+// for every client write go routine is made
+func (c *Client) write() {
 	defer func() {
 		c.conn.Close()
 	}()
@@ -113,8 +113,8 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	client.hub.register <- client
 
 	// Start a new reader go routine and writer go routine for the client
-	go client.writePump()
-	go client.readPump()
+	go client.write()
+	go client.read()
 }
 
 // servePublish reads data and publishes to broadcasting channel
