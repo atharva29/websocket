@@ -49,11 +49,8 @@ type Payload struct {
 	Message string
 }
 
-// readPump pumps messages from the websocket connection to the hub.
-//
-// The application runs readPump in a per-connection goroutine. The application
-// ensures that there is at most one reader on a connection by executing all
-// reads from this goroutine.
+// readPump reads messages from the clients and send events to hub on client's connection closing
+// for every client writePump go routine is made
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
@@ -74,10 +71,7 @@ func (c *Client) readPump() {
 }
 
 // writePump pumps messages from the hub to the websocket connection.
-//
-// A goroutine running writePump is started for each connection. The
-// application ensures that there is at most one writer to a connection by
-// executing all writes from this goroutine.
+// for every client writePump go routine is made
 func (c *Client) writePump() {
 	defer func() {
 		c.conn.Close()
@@ -99,7 +93,9 @@ func (c *Client) writePump() {
 			w.Write(<-c.send)
 		}
 
+		// close the writer
 		if err := w.Close(); err != nil {
+			log.Println(err)
 			return
 		}
 	}
@@ -113,6 +109,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	// register client to the hubF
 	client.hub.register <- client
 
 	// Start a new reader go routine and writer go routine for the client

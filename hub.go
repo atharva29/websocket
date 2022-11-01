@@ -28,6 +28,7 @@ func newHub() *Hub {
 func (h *Hub) run() {
 	for {
 		select {
+		// register a client
 		case client := <-h.register:
 			h.clients[client] = true
 		case client := <-h.unregister:
@@ -36,6 +37,7 @@ func (h *Hub) run() {
 				// close the writer, this will terminate the go routine of writer for the closed client
 				close(client.send)
 			}
+		// broadcast message to each client
 		case message := <-h.broadcast:
 			for client := range h.clients {
 				client.send <- message
